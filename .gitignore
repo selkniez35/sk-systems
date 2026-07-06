@@ -11363,16 +11363,9 @@
 /node_modules/yocto-queue/package.json
 /node_modules/yocto-queue/readme.md
 /node_modules/.package-lock.json
-/public/build/app.css
-/public/build/app.js
-/public/build/entrypoints.json
-/public/build/manifest.json
-/public/build/runtime.js
-/public/build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-turbo_dist-f1be9d.js
 
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
-/public/build/
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
