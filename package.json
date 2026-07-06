@@ -1,15 +1,29 @@
 {
-  "name": "sk-systems",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+    "devDependencies": {
+        "@babel/core": "^8.0.0",
+        "@babel/preset-env": "^8.0.0",
+        "@symfony/webpack-encore": "^7.1.0",
+        "babel-plugin-polyfill-corejs3": "^1.0.0",
+        "core-js": "^3.49.0",
+        "regenerator-runtime": "^0.13.9",
+        "webpack": "^5.82",
+        "webpack-cli": "^7.0.0"
+    },
+    "license": "UNLICENSED",
+    "private": true,
+    "scripts": {
+        "dev-server": "encore dev-server",
+        "dev": "encore dev",
+        "watch": "encore dev --watch",
+        "build": "encore production --progress"
+    },
+    "dependencies": {
+        "@hotwired/stimulus": "^3.2.2",
+        "@hotwired/turbo": "^8.0.23",
+        "@popperjs/core": "^2.11.8",
+        "@symfony/stimulus-bridge": "^4.0.1",
+        "@symfony/ux-turbo": "^3.2.0",
+        "bootstrap": "^5.3.8",
+        "stimulus": "^3.2.2"
+    }
 }
