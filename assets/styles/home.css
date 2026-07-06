@@ -1,0 +1,122 @@
+.hero-section {
+    padding: 80px 0;
+    background: linear-gradient(
+        135deg,
+        #f8f9fa,
+        #ffffff
+    );
+}
+
+
+.min-vh-75 {
+    min-height: 75vh;
+}
+
+
+.hero-card {
+    background: #111827;
+    border-radius: 20px;
+    padding: 30px;
+}
+
+
+.code-window {
+    color: #fff;
+    font-family: monospace;
+}
+
+
+.code-header span {
+    display:inline-block;
+    width:12px;
+    height:12px;
+    background:#aaa;
+    border-radius:50%;
+    margin-right:5px;
+}
+
+
+.code-window span {
+    color:#38bdf8;
+}
+
+
+
+.service-card,
+.price-card {
+
+    height:100%;
+    padding:35px;
+    border-radius:20px;
+    background:white;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+
+    transition:.3s;
+}
+
+
+
+.service-card:hover,
+.price-card:hover {
+
+    transform:translateY(-8px);
+
+}
+
+
+
+.icon {
+
+    font-size:40px;
+    margin-bottom:20px;
+
+}
+
+
+
+.mvp-section {
+
+    background:#f8fafc;
+
+}
+
+
+
+.price-card ul {
+
+    list-style:none;
+    padding:0;
+
+}
+
+
+.price-card li {
+
+    padding:8px 0;
+
+}
+
+
+
+.featured {
+
+    border:2px solid #0d6efd;
+    position:relative;
+
+}
+
+
+.popular {
+
+    position:absolute;
+    top:-15px;
+    left:50%;
+    transform:translateX(-50%);
+
+    background:#0d6efd;
+    color:white;
+
+    padding:5px 20px;
+    border-radius:20px;
+
+}
