@@ -1,101 +1,146 @@
 {% extends 'base.html.twig' %}
 
+
 {% block title %}
     SK Systems - Développement web & solutions digitales
 {% endblock %}
 
 
-{% block stylesheets %}
-    {{ parent() }}
-{% endblock %}
-
 
 {% block body %}
 
+
     <section class="hero-section">
+
 
         <div class="container">
 
-            <div class="row align-items-center min-vh-75">
+
+            <div class="row align-items-center">
+
 
                 <div class="col-lg-7">
 
-                <span class="badge bg-primary mb-3">
-                    Développement web sur mesure
-                </span>
+
+<span class="badge bg-primary mb-3">
+Développement web sur mesure
+</span>
+
 
 
                     <h1 class="display-3 fw-bold">
+
                         Créons des solutions digitales
+
                         <span class="text-primary">
-                        performantes
-                    </span>
+performantes
+</span>
+
                     </h1>
 
 
-                    <p class="lead text-secondary mt-4">
-                        SK Systems accompagne les entreprises et entrepreneurs
-                        dans la création de sites web, applications métiers
-                        et MVP adaptés à leurs objectifs.
+
+                    <p class="lead mt-4">
+
+                        SK Systems accompagne les entreprises
+                        dans la création de sites web,
+                        applications métiers et MVP.
+
                     </p>
+
 
 
                     <div class="mt-4">
 
+
                         <a href="#services"
                            class="btn btn-primary btn-lg me-3">
+
                             Mes services
+
                         </a>
+
 
 
                         <a href="#mvp"
-                           class="btn btn-outline-dark btn-lg">
+                           class="btn btn-outline-light btn-lg">
+
                             Découvrir les MVP
+
                         </a>
+
 
                     </div>
 
 
+
                 </div>
+
+
+
 
 
                 <div class="col-lg-5 mt-5 mt-lg-0">
 
-                    <div class="hero-card shadow-lg">
+
+                    <div class="hero-card">
+
 
                         <div class="code-window">
 
+
                             <div class="code-header">
+
                                 <span></span>
                                 <span></span>
                                 <span></span>
+
                             </div>
 
 
+
                             <pre>
-<span>&lt;SK Systems&gt;</span>
 
-Symfony
-PHP
-JavaScript
-API
+<span>const</span> company = {
 
-<span>&lt;/SK Systems&gt;</span>
-                        </pre>
+ stack: [
+  "Symfony",
+  "PHP",
+  "JavaScript"
+ ],
+
+ mission:
+ "Créer des solutions digitales"
+
+};
+
+
+</pre>
+
 
                         </div>
 
+
                     </div>
 
+
                 </div>
-                
+
+
             </div>
+
 
         </div>
 
+
     </section>
 
+
+
+
+
     <section id="services" class="py-5">
+
 
         <div class="container">
 
@@ -121,18 +166,22 @@ API
 
                     <div class="service-card">
 
+
                         <div class="icon">
                             🌐
                         </div>
+
 
                         <h4>
                             Sites web
                         </h4>
 
+
                         <p>
-                            Sites vitrines modernes, rapides et optimisés
-                            pour présenter votre activité.
+                            Création de sites vitrines modernes,
+                            rapides et optimisés.
                         </p>
+
 
                     </div>
 
@@ -140,22 +189,27 @@ API
 
 
 
+
                 <div class="col-md-4">
 
                     <div class="service-card">
+
 
                         <div class="icon">
                             ⚙️
                         </div>
 
+
                         <h4>
                             Applications web
                         </h4>
 
+
                         <p>
-                            Applications métiers développées avec
-                            Symfony et PHP.
+                            Applications métiers Symfony
+                            sur mesure.
                         </p>
+
 
                     </div>
 
@@ -168,18 +222,22 @@ API
 
                     <div class="service-card">
 
+
                         <div class="icon">
                             🚀
                         </div>
+
 
                         <h4>
                             MVP
                         </h4>
 
+
                         <p>
-                            Transformez votre idée en produit viable
-                            et testez votre marché rapidement.
+                            Transformez votre idée en produit
+                            rapidement.
                         </p>
+
 
                     </div>
 
@@ -191,7 +249,12 @@ API
 
         </div>
 
+
     </section>
+
+
+
+
 
     <section id="mvp" class="mvp-section py-5">
 
@@ -205,10 +268,6 @@ API
                     Mes offres MVP
                 </h2>
 
-                <p class="text-muted">
-                    Des formules simples pour lancer votre projet.
-                </p>
-
             </div>
 
 
@@ -216,14 +275,15 @@ API
             <div class="row g-4">
 
 
-
                 <div class="col-md-4">
 
                     <div class="price-card">
 
+
                         <h4>
                             Starter
                         </h4>
+
 
                         <h2>
                             990€
@@ -232,16 +292,14 @@ API
 
                         <ul>
 
-                            <li>Site professionnel</li>
-                            <li>Design responsive</li>
-                            <li>Formulaire contact</li>
-                            <li>Mise en ligne</li>
+                            <li>✔ Site professionnel</li>
+                            <li>✔ Design responsive</li>
+                            <li>✔ Mise en ligne</li>
 
                         </ul>
 
 
-                        <a href="#"
-                           class="btn btn-primary w-100">
+                        <a class="btn btn-primary w-100">
                             Commander
                         </a>
 
@@ -253,10 +311,10 @@ API
 
 
 
-
                 <div class="col-md-4">
 
                     <div class="price-card featured">
+
 
 <span class="popular">
 Populaire
@@ -267,6 +325,7 @@ Populaire
                             Business
                         </h4>
 
+
                         <h2>
                             2490€
                         </h2>
@@ -274,16 +333,14 @@ Populaire
 
                         <ul>
 
-                            <li>Application web</li>
-                            <li>Base de données</li>
-                            <li>Espace utilisateur</li>
-                            <li>Paiement en ligne</li>
+                            <li>✔ Application web</li>
+                            <li>✔ Base de données</li>
+                            <li>✔ Paiement en ligne</li>
 
                         </ul>
 
 
-                        <a href="#"
-                           class="btn btn-primary w-100">
+                        <a class="btn btn-primary w-100">
                             Commander
                         </a>
 
@@ -292,13 +349,18 @@ Populaire
 
                 </div>
 
+
+
+
                 <div class="col-md-4">
 
                     <div class="price-card">
 
+
                         <h4>
                             Sur mesure
                         </h4>
+
 
                         <h2>
                             Devis
@@ -307,45 +369,54 @@ Populaire
 
                         <ul>
 
-                            <li>Architecture dédiée</li>
-                            <li>Développement complet</li>
-                            <li>Accompagnement</li>
+                            <li>✔ Architecture dédiée</li>
+                            <li>✔ Développement complet</li>
 
                         </ul>
 
-                        <a href="#"
-                           class="btn btn-outline-primary w-100">
+
+                        <a class="btn btn-outline-primary w-100">
                             Contact
                         </a>
+
 
                     </div>
 
                 </div>
 
+
             </div>
+
 
         </div>
 
+
     </section>
 
-    <section class="py-5">
 
-        <div class="container text-center">
+
+
+    <section class="py-5 text-center">
+
+        <div class="container">
 
 
             <h2 class="fw-bold">
                 Pourquoi SK Systems ?
             </h2>
 
-            <p class="lead text-muted mt-3">
 
-                Une approche basée sur la qualité du code,
+            <p class="lead text-muted">
+
+                Un développement basé sur la qualité,
                 la performance et la simplicité.
 
             </p>
 
+
         </div>
 
     </section>
+
 
 {% endblock %}
