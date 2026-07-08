@@ -1,150 +1,139 @@
 name: Deploy Production
 
-
 on:
     push:
         tags:
             - 'v*.*.*'
 
-
 jobs:
-
     deploy:
-
         runs-on: ubuntu-latest
 
         env:
             APP_ENV: prod
 
-
         steps:
-
-
             # =========================
             # CHECKOUT
             # =========================
 
             - name: Checkout
-
               uses: actions/checkout@v4
-
               with:
                   fetch-depth: 0
 
-
-
             # =========================
-            # TAG SAFETY
+            # VERIFY TAG
             # =========================
 
             - name: Verify tag comes from main
-
               run: |
                   git fetch origin main --tags
 
-                  if ! git branch -r --contains $GITHUB_SHA | grep origin/main; then
+                  if ! git branch -r --contains $GITHUB_SHA | grep -q "origin/main"; then
                     echo "❌ Tag must come from main branch"
                     exit 1
                   fi
-
-
 
             # =========================
             # PHP
             # =========================
 
             - name: Setup PHP
-
               uses: shivammathur/setup-php@v2
-
               with:
                   php-version: 8.4
                   extensions: mbstring, intl, pdo_mysql
                   coverage: none
+                  tools: composer:v2
+
+            - name: Cache Composer
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      ~/.composer/cache
+                      ~/.cache/composer
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: |
+                      ${{ runner.os }}-composer-
 
             # =========================
             # COMPOSER
             # =========================
 
             - name: Validate composer
-
-              run: |
-                  composer validate --no-check-publish
-
+              run: composer validate --no-check-publish
 
             - name: Install Composer dependencies
-
               run: |
                   composer install \
-                  --no-dev \
-                  --optimize-autoloader \
-                  --no-interaction \
-                  --no-progress \
-                  --no-scripts
-
-
+                    --no-dev \
+                    --prefer-dist \
+                    --optimize-autoloader \
+                    --classmap-authoritative \
+                    --no-interaction \
+                    --no-progress \
+                    --no-scripts
 
             # =========================
             # NODE
             # =========================
 
             - name: Setup Node
-
               uses: actions/setup-node@v4
-
               with:
                   node-version: 22
                   cache: npm
 
-
-
             - name: Install npm dependencies
-
-              run: |
-                  npm ci
-
-
+              run: npm ci
 
             - name: Build assets
+              run: npm run build
 
+            # =========================
+            # PREPARE DEPLOY PACKAGE
+            # =========================
+
+            - name: Prepare deploy package
               run: |
-                  npm run build
+                  mkdir deploy
 
+                  cp -R bin deploy/
+                  cp -R config deploy/
+                  cp -R migrations deploy/
+                  cp -R public deploy/
+                  cp -R src deploy/
+                  cp -R templates deploy/
+                  cp -R translations deploy/
+                  cp -R vendor deploy/
 
+                  mkdir -p deploy/var/cache
+                  mkdir -p deploy/var/log
+
+                  cp composer.json deploy/
+                  cp composer.lock deploy/
+                  cp symfony.lock deploy/
 
             # =========================
-            # SYMFONY
+            # DEPLOY
             # =========================
 
-            - name: Symfony cache warmup
+            - name: Deploy to OVH
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+              with:
+                  server: ${{ secrets.OVH_HOST }}
+                  username: ${{ secrets.OVH_USER }}
+                  password: ${{ secrets.OVH_PASSWORD }}
 
-              run: |
-                  php bin/console cache:warmup --env=prod
+                  protocol: ftp
+                  port: 21
 
+                  local-dir: deploy/
+                  server-dir: /home/sksystz/sk-systems/
 
+                  dangerous-clean-slate: false
 
-            # =========================
-            # DEPLOY OVH SFTP
-            # =========================
-
-            # =========================
-            # DEPLOY OVH SFTP
-            # =========================
-
-            -   name: Deploy via FTP
-                uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-                with:
-                    server: ftp.cluster129.hosting.ovh.net
-                    username: ${{ secrets.OVH_USER }}
-                    password: ${{ secrets.OVH_PASSWORD }}
-                    protocol: ftp
-                    port: 21
-                    local-dir: ./
-                    server-dir: /
-                    exclude: |
-                        **/.git*
-                        **/.github/**
-                        **/node_modules/**
-                        tests/**
-                        var/cache/**
-                        var/log/**
+                  exclude: |
+                      **/.DS_Store
+                      **/Thumbs.db
