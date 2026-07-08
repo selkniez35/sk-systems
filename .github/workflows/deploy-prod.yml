@@ -92,11 +92,20 @@ jobs:
               run: npm run build
 
             # =========================
+            # CLEAR SYMFONY CACHE
+            # =========================
+
+            - name: Clear Symfony cache
+              run: |
+                  rm -rf var/cache/*
+
+            # =========================
             # PREPARE DEPLOY PACKAGE
             # =========================
 
             - name: Prepare deploy package
               run: |
+                  rm -rf deploy
                   mkdir deploy
 
                   cp -R bin deploy/
