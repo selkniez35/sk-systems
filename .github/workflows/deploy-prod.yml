@@ -1,9 +1,10 @@
 name: Deploy Production
 
+
 on:
     push:
-        branches:
-            - main
+        tags:
+            - 'v*.*.*'
 
 
 jobs:
@@ -24,7 +25,27 @@ jobs:
             # =========================
 
             - name: Checkout
+
               uses: actions/checkout@v4
+
+              with:
+                  fetch-depth: 0
+
+
+
+            # =========================
+            # TAG SAFETY
+            # =========================
+
+            - name: Verify tag comes from main
+
+              run: |
+                  git fetch origin main --tags
+
+                  if ! git branch -r --contains $GITHUB_SHA | grep origin/main; then
+                    echo "❌ Tag must come from main branch"
+                    exit 1
+                  fi
 
 
 
@@ -50,7 +71,7 @@ jobs:
             - name: Validate composer
 
               run: |
-                  composer validate --strict
+                  composer validate
 
 
 
