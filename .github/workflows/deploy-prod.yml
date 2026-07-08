@@ -124,7 +124,7 @@ jobs:
                   cp composer.lock deploy/
                   cp symfony.lock deploy/
 
-            # =========================
+                        # =========================
             # DEPLOY
             # =========================
 
@@ -147,6 +147,10 @@ jobs:
                       **/.DS_Store
                       **/Thumbs.db
 
-                      - name: Clear Symfony cache on production
-                      run: |
-                      curl --fail "https://sksystems.fr/_deploy.php?token=${{ secrets.DEPLOY_TOKEN }}"
+            # =========================
+            # CLEAR REMOTE CACHE
+            # =========================
+
+            - name: Clear Symfony cache on production
+              run: |
+                  curl --fail "https://sksystems.fr/_deploy.php?token=${{ secrets.DEPLOY_TOKEN }}"
