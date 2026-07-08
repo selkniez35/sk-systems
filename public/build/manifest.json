@@ -1,7 +1,7 @@
 {
-  "build/app.css": "/build/app.6d71f15a.css",
-  "build/app.js": "/build/app.dea52ec2.js",
-  "build/runtime.js": "/build/runtime.d5f83a3a.js",
-  "build/72.801cc83f.css": "/build/72.801cc83f.css",
-  "build/72.3e1abc75.js": "/build/72.3e1abc75.js"
+  "build/app.css": "/build/app.css",
+  "build/app.js": "/build/app.js",
+  "build/runtime.js": "/build/runtime.js",
+  "build/vendors-node_modules_bootstrap_dist_js_bootstrap_bundle_min_js-node_modules_bootstrap_dist_cs-f20b8b.css": "/build/vendors-node_modules_bootstrap_dist_js_bootstrap_bundle_min_js-node_modules_bootstrap_dist_cs-f20b8b.css",
+  "build/vendors-node_modules_bootstrap_dist_js_bootstrap_bundle_min_js-node_modules_bootstrap_dist_cs-f20b8b.js": "/build/vendors-node_modules_bootstrap_dist_js_bootstrap_bundle_min_js-node_modules_bootstrap_dist_cs-f20b8b.js"
 }
