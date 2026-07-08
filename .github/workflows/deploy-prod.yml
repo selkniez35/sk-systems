@@ -124,33 +124,26 @@ jobs:
                   cp composer.lock deploy/
                   cp symfony.lock deploy/
 
-                        # =========================
+            # =========================
             # DEPLOY
             # =========================
 
-            - name: Deploy to OVH
-              uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-              with:
-                  server: ${{ secrets.OVH_HOST }}
-                  username: ${{ secrets.OVH_USER }}
-                  password: ${{ secrets.OVH_PASSWORD }}
+            -   name: Deploy to OVH
+                uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+                with:
+                    server: ${{ secrets.OVH_HOST }}
+                    username: ${{ secrets.OVH_USER }}
+                    password: ${{ secrets.OVH_PASSWORD }}
 
-                  protocol: ftp
-                  port: 21
+                    protocol: ftp
+                    port: 21
 
-                  local-dir: deploy/
-                  server-dir: /home/sksystz/sk-systems/
+                    local-dir: deploy/
+                    server-dir: /
 
-                  dangerous-clean-slate: false
+                    state-name: .ftp-deploy-sync-state-${{ github.run_number }}.json
 
-                  exclude: |
-                      **/.DS_Store
-                      **/Thumbs.db
+                    dangerous-clean-slate: false
 
-            # =========================
-            # CLEAR REMOTE CACHE
-            # =========================
 
-            - name: Clear Symfony cache on production
-              run: |
-                  curl --fail "https://sksystems.fr/_deploy.php?token=${{ secrets.DEPLOY_TOKEN }}"
+
