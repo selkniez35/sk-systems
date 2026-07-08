@@ -164,7 +164,7 @@ jobs:
                     localDir: deploy
                     remoteDir: /home/sksystz/sk-systems
 
-                    concurrency: 10
+                    concurrency: 1
 
                     forceUpload: false
                     removeExtraFilesOnServer: false
