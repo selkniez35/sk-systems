@@ -76,6 +76,23 @@ jobs:
                     --no-scripts
 
             # =========================
+            # CHECK IF VENDOR CHANGED
+            # =========================
+
+            - name: Check Composer changes
+              id: composer
+              run: |
+                  PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+                  if [ -z "$PREVIOUS_TAG" ]; then
+                    echo "vendor=true" >> $GITHUB_OUTPUT
+                  elif git diff --name-only "$PREVIOUS_TAG" HEAD | grep -q "^composer.lock$"; then
+                    echo "vendor=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "vendor=false" >> $GITHUB_OUTPUT
+                  fi
+
+            # =========================
             # NODE
             # =========================
 
@@ -103,26 +120,32 @@ jobs:
             # PREPARE DEPLOY PACKAGE
             # =========================
 
-            - name: Prepare deploy package
-              run: |
-                  rm -rf deploy
-                  mkdir deploy
+            -   name: Prepare deploy package
+                run: |
+                    rm -rf deploy
+                    mkdir deploy
 
-                  cp -R bin deploy/
-                  cp -R config deploy/
-                  cp -R migrations deploy/
-                  cp -R public deploy/
-                  cp -R src deploy/
-                  cp -R templates deploy/
-                  cp -R translations deploy/
-                  cp -R vendor deploy/
+                    cp -R bin deploy/
+                    cp -R config deploy/
+                    cp -R migrations deploy/
+                    cp -R public deploy/
+                    cp -R src deploy/
+                    cp -R templates deploy/
+                    cp -R translations deploy/
 
-                  mkdir -p deploy/var/cache
-                  mkdir -p deploy/var/log
+                    if [ "${{ steps.composer.outputs.vendor }}" = "true" ]; then
+                      echo "Uploading vendor..."
+                      cp -R vendor deploy/
+                    else
+                      echo "Vendor unchanged, skipping."
+                    fi
 
-                  cp composer.json deploy/
-                  cp composer.lock deploy/
-                  cp symfony.lock deploy/
+                    mkdir -p deploy/var/cache
+                    mkdir -p deploy/var/log
+
+                    cp composer.json deploy/
+                    cp composer.lock deploy/
+                    cp symfony.lock deploy/
 
             # =========================
             # DEPLOY
