@@ -127,20 +127,24 @@ jobs:
             # DEPLOY OVH SFTP
             # =========================
 
-            - name: Deploy to OVH
+            # =========================
+            # DEPLOY OVH SFTP
+            # =========================
 
-              uses: appleboy/scp-action@v0.1.7
-
-              with:
-
-                  host: ${{ secrets.OVH_HOST }}
-
-                  username: ${{ secrets.OVH_USER }}
-
-                  password: ${{ secrets.OVH_PASSWORD }}
-
-                  port: 22
-
-                  source: "./"
-
-                  target: "/sk-systems/"
+            -   name: Deploy via FTP
+                uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+                with:
+                    server: ftp.cluster129.hosting.ovh.net
+                    username: ${{ secrets.OVH_USER }}
+                    password: ${{ secrets.OVH_PASSWORD }}
+                    protocol: ftp
+                    port: 21
+                    local-dir: ./
+                    server-dir: /
+                    exclude: |
+                        **/.git*
+                        **/.github/**
+                        **/node_modules/**
+                        tests/**
+                        var/cache/**
+                        var/log/**
