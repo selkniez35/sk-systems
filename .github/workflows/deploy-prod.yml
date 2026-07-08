@@ -128,22 +128,33 @@ jobs:
             # DEPLOY
             # =========================
 
-            -   name: Deploy to OVH
-                uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+            -   name: Deploy via SFTP
+                uses: wangyucode/sftp-upload-action@v3
+
                 with:
-                    server: ${{ secrets.OVH_HOST }}
+                    host: ssh.cluster129.hosting.ovh.net
+                    port: 22
+
                     username: ${{ secrets.OVH_USER }}
                     password: ${{ secrets.OVH_PASSWORD }}
 
-                    protocol: ftp
-                    port: 21
+                    localDir: deploy
+                    remoteDir: /home/sksystz/sk-systems
 
-                    local-dir: deploy/
-                    server-dir: /
+                    concurrency: 10
 
-                    state-name: .ftp-deploy-sync-state-${{ github.run_number }}.json
+                    forceUpload: false
+                    removeExtraFilesOnServer: false
 
-                    dangerous-clean-slate: false
+                    exclude: |
+                        .git/**
+                        .github/**
+                        node_modules/**
+                        tests/**
+                        var/cache/**
+                        var/log/**
+                        .DS_Store
+                        Thumbs.db
 
 
 
