@@ -1,0 +1,95 @@
+name: Deploy Production
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+
+    deploy:
+
+        runs-on: ubuntu-latest
+
+        steps:
+
+            # =========================
+            # CHECKOUT
+            # =========================
+
+            - name: Checkout
+              uses: actions/checkout@v4
+
+
+            # =========================
+            # PHP
+            # =========================
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+
+              with:
+                  php-version: 8.4
+                  extensions: mbstring, intl, pdo_mysql
+
+
+            # =========================
+            # COMPOSER
+            # =========================
+
+            - name: Install Composer dependencies
+              run: |
+                  composer install \
+                  --no-dev \
+                  --optimize-autoloader \
+                  --no-interaction
+
+
+            # =========================
+            # NODE
+            # =========================
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+
+              with:
+                  node-version: 22
+                  cache: npm
+
+
+            - name: Install npm dependencies
+              run: |
+                  npm ci
+
+
+            - name: Build assets
+              run: |
+                  npm run build
+
+
+            # =========================
+            # SYMFONY CACHE
+            # =========================
+
+            - name: Symfony cache warmup
+              run: |
+                  APP_ENV=prod php bin/console cache:warmup
+
+
+            # =========================
+            # DEPLOY OVH
+            # =========================
+
+            - name: Deploy to OVH
+
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+
+              with:
+
+                  server: ${{ secrets.OVH_HOST }}
+                  username: ${{ secrets.OVH_USER }}
+                  password: ${{ secrets.OVH_PASSWORD }}
+
+                  protocol: ftps
+
+                  server-dir: /sk-systems/
