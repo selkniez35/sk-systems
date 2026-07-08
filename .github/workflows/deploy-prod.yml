@@ -33,6 +33,7 @@ jobs:
             # =========================
 
             - name: Setup PHP
+
               uses: shivammathur/setup-php@v2
 
               with:
@@ -46,6 +47,13 @@ jobs:
             # COMPOSER
             # =========================
 
+            - name: Validate composer
+
+              run: |
+                  composer validate --strict
+
+
+
             - name: Install Composer dependencies
 
               run: |
@@ -53,6 +61,7 @@ jobs:
                   --no-dev \
                   --optimize-autoloader \
                   --no-interaction \
+                  --no-progress \
                   --no-scripts
 
 
@@ -86,7 +95,7 @@ jobs:
 
 
             # =========================
-            # SYMFONY CACHE
+            # SYMFONY
             # =========================
 
             - name: Symfony cache warmup
@@ -95,24 +104,25 @@ jobs:
                   php bin/console cache:warmup --env=prod
 
 
+
             # =========================
-            # DEPLOY SFTP OVH
+            # DEPLOY OVH SFTP
             # =========================
 
-            -   name: Deploy to OVH
+            - name: Deploy to OVH
 
-                uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+              uses: appleboy/scp-action@v0.1.7
 
-                with:
+              with:
 
-                    server: ${{ secrets.OVH_HOST }}
+                  host: ${{ secrets.OVH_HOST }}
 
-                    username: ${{ secrets.OVH_USER }}
+                  username: ${{ secrets.OVH_USER }}
 
-                    port: 22
+                  password: ${{ secrets.OVH_PASSWORD }}
 
-                    ssh_private_key: ${{ secrets.OVH_SSH_PRIVATE_KEY }}
+                  port: 22
 
-                    local_path: './'
+                  source: "./"
 
-                    remote_path: '/sk-systems/'
+                  target: "/sk-systems/"
