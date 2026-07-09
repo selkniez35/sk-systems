@@ -147,6 +147,12 @@ jobs:
                     cp composer.lock deploy/
                     cp symfony.lock deploy/
 
+                    # Fix for OVH: provide a default .htaccess if missing in public
+                    if [ ! -f deploy/public/.htaccess ]; then
+                      echo "Creating default .htaccess for Symfony"
+                      printf "<IfModule mod_rewrite.c>\n    RewriteEngine On\n    RewriteCond %%{REQUEST_FILENAME} !-f\n    RewriteRule ^(.*)$ index.php [QSA,L]\n</IfModule>" > deploy/public/.htaccess
+                    fi
+
             # =========================
             # DEPLOY
             # =========================
@@ -162,7 +168,7 @@ jobs:
                     password: ${{ secrets.OVH_PASSWORD }}
 
                     localDir: deploy
-                    remoteDir: /home/sksystz/sk-systems
+                    remoteDir: /home/sksystz/www
 
                     concurrency: 1
 
@@ -185,7 +191,15 @@ jobs:
 
             -   name: Clear remote cache
                 run: |
-                    curl -v -f "https://sk-systems.fr/_deploy.php?token=${{ secrets.DEPLOY_TOKEN }}"
+                    RESPONSE=$(curl -s -w "\n%{http_code}" "https://sk-systems.fr/_deploy.php?token=${{ secrets.DEPLOY_TOKEN }}")
+                    HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+                    BODY=$(echo "$RESPONSE" | sed '$d')
+                    echo "HTTP Status: $HTTP_CODE"
+                    echo "Response Body: $BODY"
+                    if [ "$HTTP_CODE" -ne 200 ]; then
+                      echo "❌ Cache clear failed"
+                      exit 1
+                    fi
 
 
 
