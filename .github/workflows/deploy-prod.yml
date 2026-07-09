@@ -76,23 +76,6 @@ jobs:
                     --no-scripts
 
             # =========================
-            # CHECK IF VENDOR CHANGED
-            # =========================
-
-            - name: Check Composer changes
-              id: composer
-              run: |
-                  PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-
-                  if [ -z "$PREVIOUS_TAG" ]; then
-                    echo "vendor=true" >> $GITHUB_OUTPUT
-                  elif git diff --name-only "$PREVIOUS_TAG" HEAD | grep -q "^composer.lock$"; then
-                    echo "vendor=true" >> $GITHUB_OUTPUT
-                  else
-                    echo "vendor=false" >> $GITHUB_OUTPUT
-                  fi
-
-            # =========================
             # NODE
             # =========================
 
@@ -116,45 +99,42 @@ jobs:
               run: |
                   rm -rf var/cache/*
 
-            # =========================
+                        # =========================
             # PREPARE DEPLOY PACKAGE
             # =========================
 
-            -   name: Prepare deploy package
-                run: |
-                    rm -rf deploy
-                    mkdir deploy
+            - name: Prepare deploy package
+              run: |
+                  rm -rf deploy
+                  mkdir -p deploy
 
-                    cp -R bin deploy/
-                    cp -R config deploy/
-                    cp -R migrations deploy/
-                    cp -R public deploy/
-                    cp -R src deploy/
-                    cp -R templates deploy/
-                    cp -R translations deploy/
+                  rsync -a bin/ deploy/bin/
+                  rsync -a config/ deploy/config/
+                  rsync -a migrations/ deploy/migrations/
+                  rsync -a public/ deploy/public/
+                  rsync -a src/ deploy/src/
+                  rsync -a templates/ deploy/templates/
+                  rsync -a translations/ deploy/translations/
+                  rsync -a vendor/ deploy/vendor/
 
-                    echo "Copying vendor..."
-                    time cp -R vendor deploy/
-                    echo "Vendor copied."
+                  mkdir -p deploy/var/cache
+                  mkdir -p deploy/var/log
 
-                    mkdir -p deploy/var/cache
-                    mkdir -p deploy/var/log
+                  cp composer.json deploy/
+                  cp composer.lock deploy/
+                  cp symfony.lock deploy/
 
-                    cp composer.json deploy/
-                    cp composer.lock deploy/
-                    cp symfony.lock deploy/
+                  if [ -f index.php ]; then
+                    cp index.php deploy/
+                  fi
 
-                    [ -f index.php ] && cp index.php deploy/
-
-                    echo "===== STATS ====="
-                    du -sh vendor
-                    find vendor | wc -l
-                    du -sh deploy
-                    find deploy | wc -l
-                    echo "================="
-
-                    echo "Twig checksum:"
-                    md5sum deploy/templates/home/index.html.twig
+                  echo "===== DEPLOY ====="
+                  du -sh deploy
+                  echo "Files:"
+                  find deploy -type f | wc -l
+                  echo "Vendor:"
+                  find deploy/vendor -type f | wc -l
+                  echo "=================="
 
             # =========================
             # DEPLOY
