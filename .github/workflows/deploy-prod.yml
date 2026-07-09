@@ -116,44 +116,45 @@ jobs:
               run: |
                   rm -rf var/cache/*
 
-                        # =========================
+            # =========================
             # PREPARE DEPLOY PACKAGE
             # =========================
 
-            - name: Prepare deploy package
-              run: |
-                  rm -rf deploy
-                  mkdir deploy
+            -   name: Prepare deploy package
+                run: |
+                    rm -rf deploy
+                    mkdir deploy
 
-                  cp -R bin deploy/
-                  cp -R config deploy/
-                  cp -R migrations deploy/
-                  cp -R public deploy/
-                  cp -R src deploy/
-                  cp -R templates deploy/
-                  cp -R translations deploy/
-                  cp -R vendor deploy/
+                    cp -R bin deploy/
+                    cp -R config deploy/
+                    cp -R migrations deploy/
+                    cp -R public deploy/
+                    cp -R src deploy/
+                    cp -R templates deploy/
+                    cp -R translations deploy/
 
-                  mkdir -p deploy/var/cache
-                  mkdir -p deploy/var/log
+                    echo "Copying vendor..."
+                    time cp -R vendor deploy/
+                    echo "Vendor copied."
 
-                  cp composer.json deploy/
-                  cp composer.lock deploy/
-                  cp symfony.lock deploy/
+                    mkdir -p deploy/var/cache
+                    mkdir -p deploy/var/log
 
-                  if [ -f index.php ]; then
-                    cp index.php deploy/
-                  fi
+                    cp composer.json deploy/
+                    cp composer.lock deploy/
+                    cp symfony.lock deploy/
 
-                  echo "===== Deploy package ====="
-                  find deploy | head -100
-                  echo "=========================="
+                    [ -f index.php ] && cp index.php deploy/
 
-                  echo "Vendor files:"
-                  find deploy/vendor | wc -l
+                    echo "===== STATS ====="
+                    du -sh vendor
+                    find vendor | wc -l
+                    du -sh deploy
+                    find deploy | wc -l
+                    echo "================="
 
-                  echo "Template checksum:"
-                  md5sum deploy/templates/home/index.html.twig
+                    echo "Twig checksum:"
+                    md5sum deploy/templates/home/index.html.twig
 
             # =========================
             # DEPLOY
