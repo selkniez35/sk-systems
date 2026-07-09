@@ -166,7 +166,7 @@ jobs:
 
                     concurrency: 1
 
-                    forceUpload: false
+                    forceUpload: true
                     removeExtraFilesOnServer: false
 
                     exclude: |
@@ -178,6 +178,14 @@ jobs:
                         var/log/**
                         .DS_Store
                         Thumbs.db
+
+            # =========================
+            # POST-DEPLOY (CLEAR CACHE)
+            # =========================
+
+            -   name: Clear remote cache
+                run: |
+                    curl -v -f "https://sk-systems.fr/_deploy.php?token=${{ secrets.DEPLOY_TOKEN }}"
 
 
 

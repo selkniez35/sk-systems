@@ -7,3 +7,5 @@ dadd54,127.0.0.1,GET,http://localhost:8000/,1783415504,,200,request,0
 c44510,127.0.0.1,GET,http://localhost:8000/,1783547435,,500,request,1
 4fab2e,127.0.0.1,GET,http://localhost:8000/,1783547447,,200,request,0
 5b81d6,127.0.0.1,GET,http://localhost:8000/,1783547462,,200,request,0
+c9804f,127.0.0.1,GET,http://localhost:8000/favicon.ico,1783551117,69b46f,404,request,1
+69b46f,127.0.0.1,GET,http://localhost:8000/favicon.ico,1783551117,,404,request,1

@@ -8,8 +8,9 @@ use Symfony\Component\Console\Input\ArrayInput;
 require dirname(__DIR__).'/vendor/autoload.php';
 
 $token = $_GET['token'] ?? '';
+$envToken = $_ENV['DEPLOY_TOKEN'] ?? $_SERVER['DEPLOY_TOKEN'] ?? null;
 
-if ($token !== $_ENV['DEPLOY_TOKEN']) {
+if (empty($envToken) || $token !== $envToken) {
     http_response_code(403);
     exit('Forbidden');
 }
