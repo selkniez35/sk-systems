@@ -191,7 +191,7 @@ jobs:
 
             -   name: Clear remote cache
                 run: |
-                    RESPONSE=$(curl -s -w "\n%{http_code}" "https://sk-systems.fr/_deploy.php?token=${{ secrets.DEPLOY_TOKEN }}")
+                    RESPONSE=$(curl -L -s -w "\n%{http_code}" "https://sk-systems.fr/_deploy.php?token=${{ secrets.DEPLOY_TOKEN }}")
                     HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
                     BODY=$(echo "$RESPONSE" | sed '$d')
                     echo "HTTP Status: $HTTP_CODE"
