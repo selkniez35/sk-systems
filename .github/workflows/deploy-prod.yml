@@ -116,50 +116,44 @@ jobs:
               run: |
                   rm -rf var/cache/*
 
-            # =========================
+                        # =========================
             # PREPARE DEPLOY PACKAGE
             # =========================
 
-            -   name: Prepare deploy package
-                run: |
-                    rm -rf deploy
-                    mkdir deploy
+            - name: Prepare deploy package
+              run: |
+                  rm -rf deploy
+                  mkdir deploy
 
-                    cp -R bin deploy/
-                    cp -R config deploy/
-                    cp -R migrations deploy/
-                    cp -R public deploy/
-                    cp -R src deploy/
-                    cp -R templates deploy/
-                    cp -R translations deploy/
+                  cp -R bin deploy/
+                  cp -R config deploy/
+                  cp -R migrations deploy/
+                  cp -R public deploy/
+                  cp -R src deploy/
+                  cp -R templates deploy/
+                  cp -R translations deploy/
+                  cp -R vendor deploy/
 
-                    if [ "${{ steps.composer.outputs.vendor }}" = "true" ]; then
-                      echo "Uploading vendor..."
-                      cp -R vendor deploy/
-                    else
-                      echo "Vendor unchanged, skipping."
-                    fi
+                  mkdir -p deploy/var/cache
+                  mkdir -p deploy/var/log
 
-                    mkdir -p deploy/var/cache
-                    mkdir -p deploy/var/log
+                  cp composer.json deploy/
+                  cp composer.lock deploy/
+                  cp symfony.lock deploy/
 
-                    cp composer.json deploy/
-                    cp composer.lock deploy/
-                    cp symfony.lock deploy/
+                  if [ -f index.php ]; then
                     cp index.php deploy/
+                  fi
 
-                    # Fix for OVH: provide a default .htaccess if missing in public
-                    if [ ! -f deploy/public/.htaccess ]; then
-                      echo "Creating default .htaccess for Symfony"
-                      printf "<IfModule mod_rewrite.c>\n    RewriteEngine On\n    RewriteCond %%{REQUEST_FILENAME} !-f\n    RewriteRule ^(.*)$ index.php [QSA,L]\n</IfModule>" > deploy/public/.htaccess
-                    fi
+                  echo "===== Deploy package ====="
+                  find deploy | head -100
+                  echo "=========================="
 
-                    # Root .htaccess for OVH to point to public/ if needed
-                    # Or at least to handle the entry point if the server hits the root
-                    if [ ! -f deploy/.htaccess ]; then
-                       echo "Creating root .htaccess for OVH"
-                       printf "RewriteEngine On\nRewriteRule ^$ public/index.php [L]\nRewriteCond %%{REQUEST_FILENAME} !-f\nRewriteRule ^((?!public/).*)$ public/\$1 [L,NC]\n" > deploy/.htaccess
-                    fi
+                  echo "Vendor files:"
+                  find deploy/vendor | wc -l
+
+                  echo "Template checksum:"
+                  md5sum deploy/templates/home/index.html.twig
 
             # =========================
             # DEPLOY
@@ -167,7 +161,6 @@ jobs:
 
             -   name: Deploy via SFTP
                 uses: wangyucode/sftp-upload-action@v3
-
                 with:
                     host: ssh.cluster129.hosting.ovh.net
                     port: 22
@@ -176,7 +169,7 @@ jobs:
                     password: ${{ secrets.OVH_PASSWORD }}
 
                     localDir: deploy
-                    remoteDir: /home/sksystz/www
+                    remoteDir: /home/sksystz/sk-systems
 
                     concurrency: 1
 
@@ -194,18 +187,21 @@ jobs:
                         Thumbs.db
 
             # =========================
-            # POST-DEPLOY (CLEAR CACHE)
+            # CLEAR PRODUCTION CACHE
             # =========================
 
-            -   name: Clear remote cache
+            -   name: Clear production cache
                 run: |
-                    RESPONSE=$(curl -L -s -w "\n%{http_code}" "https://sk-systems.fr/_deploy.php?token=${{ secrets.DEPLOY_TOKEN }}")
+                    RESPONSE=$(curl -L -s -w "\n%{http_code}" "https://sksystems.fr/_deploy.php?token=${{ secrets.DEPLOY_TOKEN }}")
+
                     HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
                     BODY=$(echo "$RESPONSE" | sed '$d')
+
                     echo "HTTP Status: $HTTP_CODE"
-                    echo "Response Body: $BODY"
-                    if [ "$HTTP_CODE" -ne 200 ]; then
-                      echo "❌ Cache clear failed"
+                    echo "Response Body:"
+                    echo "$BODY"
+
+                    if [ "$HTTP_CODE" != "200" ]; then
                       exit 1
                     fi
 
