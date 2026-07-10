@@ -6,7 +6,6 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-// Désactiver l'affichage des erreurs pour ne pas polluer la sortie JSON en cas de warning
 error_reporting(0);
 ini_set('display_errors', '0');
 
@@ -15,6 +14,7 @@ header('Content-Type: application/json');
 function respond(int $code, string $message, array $details = []): void
 {
     http_response_code($code);
+
     echo json_encode([
         'status' => $code === 200 ? 'success' : 'error',
         'message' => $message,
@@ -22,77 +22,89 @@ function respond(int $code, string $message, array $details = []): void
         'php_version' => PHP_VERSION,
         'sapi' => PHP_SAPI,
     ]);
+
     exit;
 }
 
-require dirname(__DIR__).'/vendor/autoload.php';
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+/**
+ * Token de déploiement.
+ * Le même doit être enregistré dans le secret GitHub DEPLOY_TOKEN.
+ */
+$expectedToken = 'sdfsfg4392804JGZ498TGFjfhuizsoeç_uçII4';
 
 $token = $_GET['token'] ?? '';
-$envToken = $_ENV['DEPLOY_TOKEN'] ?? $_SERVER['DEPLOY_TOKEN'] ?? null;
 
-// Si le token n'est pas trouvé dans ENV/SERVER, on essaie de charger .env.local manuellement
-// car en mode CGI/FastCGI sur OVH, les variables d'environnement peuvent être capricieuses
-if (empty($envToken) && file_exists(dirname(__DIR__).'/.env.local')) {
-    $lines = file(dirname(__DIR__).'/.env.local', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (str_starts_with(trim($line), '#')) continue;
-        if (str_contains($line, '=')) {
-            [$name, $value] = explode('=', $line, 2);
-            if (trim($name) === 'DEPLOY_TOKEN') {
-                $envToken = trim($value);
-                break;
-            }
-        }
-    }
-}
-
-if (empty($envToken) || $token !== $envToken) {
-    respond(403, 'Forbidden: Token mismatch or not set.');
+if (!hash_equals($expectedToken, $token)) {
+    respond(403, 'Forbidden');
 }
 
 try {
-    // Reset OPcache if available (crucial for OVH)
+
+    // Reset OPCache (OVH)
     $opcacheReset = false;
+
     if (function_exists('opcache_reset')) {
         $opcacheReset = opcache_reset();
     }
 
     $kernel = new \App\Kernel('prod', false);
+
     $application = new Application($kernel);
     $application->setAutoExit(false);
 
+    /*
+     * Cache Clear
+     */
     $output = new BufferedOutput();
 
-    // Cache Clear
-    $exitCodeClear = $application->run(new ArrayInput([
-        'command' => 'cache:clear',
-        '--env' => 'prod',
-        '--no-warmup' => true,
-    ]), $output);
+    $exitCodeClear = $application->run(
+        new ArrayInput([
+            'command' => 'cache:clear',
+            '--env' => 'prod',
+            '--no-warmup' => true,
+        ]),
+        $output
+    );
+
     $clearLog = $output->fetch();
 
-    // Cache Warmup
-    $exitCodeWarmup = $application->run(new ArrayInput([
-        'command' => 'cache:warmup',
-        '--env' => 'prod',
-    ]), $output);
+    /*
+     * Cache Warmup
+     */
+    $output = new BufferedOutput();
+
+    $exitCodeWarmup = $application->run(
+        new ArrayInput([
+            'command' => 'cache:warmup',
+            '--env' => 'prod',
+        ]),
+        $output
+    );
+
     $warmupLog = $output->fetch();
 
-    respond(200, 'Deployment tasks completed.', [
+    respond(200, 'Deployment completed successfully.', [
         'opcache_reset' => $opcacheReset,
+
         'cache_clear' => [
             'exit_code' => $exitCodeClear,
             'log' => $clearLog,
         ],
+
         'cache_warmup' => [
             'exit_code' => $exitCodeWarmup,
             'log' => $warmupLog,
         ],
     ]);
+
 } catch (\Throwable $e) {
-    respond(500, 'Internal Server Error', [
+
+    respond(500, 'Deployment failed.', [
         'exception' => $e->getMessage(),
         'file' => $e->getFile(),
         'line' => $e->getLine(),
     ]);
+
 }
