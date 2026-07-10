@@ -19,21 +19,6 @@ jobs:
 
             - name: Checkout
               uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
-
-            # =========================
-            # VERIFY TAG
-            # =========================
-
-            - name: Verify tag comes from main
-              run: |
-                  git fetch origin main --tags
-
-                  if ! git branch -r --contains $GITHUB_SHA | grep -q "origin/main"; then
-                    echo "❌ Tag must come from main branch"
-                    exit 1
-                  fi
 
             # =========================
             # PHP
@@ -42,27 +27,9 @@ jobs:
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: 8.4
-                  extensions: mbstring, intl, pdo_mysql
+                  php-version: "8.4"
+                  extensions: mbstring,intl,pdo_mysql
                   coverage: none
-                  tools: composer:v2
-
-            - name: Cache Composer
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      ~/.composer/cache
-                      ~/.cache/composer
-                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-                  restore-keys: |
-                      ${{ runner.os }}-composer-
-
-            # =========================
-            # COMPOSER
-            # =========================
-
-            - name: Validate composer
-              run: composer validate --no-check-publish
 
             - name: Install Composer dependencies
               run: |
@@ -72,8 +39,7 @@ jobs:
                     --optimize-autoloader \
                     --classmap-authoritative \
                     --no-interaction \
-                    --no-progress \
-                    --no-scripts
+                    --no-progress
 
             # =========================
             # NODE
@@ -92,99 +58,47 @@ jobs:
               run: npm run build
 
             # =========================
+            # CLEAN CACHE
+            # =========================
+
+            - name: Remove local cache
+              run: rm -rf var/cache/*
+
+            # =========================
+            # DEPLOY VIA FTP
+            # =========================
+
+            - name: FTP Deploy
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+              with:
+                  server: ftp.cluster129.hosting.ovh.net
+                  username: ${{ secrets.OVH_USER }}
+                  password: ${{ secrets.OVH_PASSWORD }}
+
+                  protocol: ftp
+                  port: 21
+
+                  local-dir: ./
+                  server-dir: /sk-systems/
+
+                  dangerous-clean-slate: false
+
+                  exclude: |
+                      **/.git*
+                      **/.github/**
+                      **/node_modules/**
+                      **/tests/**
+                      **/var/cache/**
+                      **/var/log/**
+                      **/.env
+                      **/.env.local
+                      **/.DS_Store
+                      README.md
+
+            # =========================
             # CLEAR SYMFONY CACHE
             # =========================
 
-            - name: Clear Symfony cache
+            - name: Clear production cache
               run: |
-                  rm -rf var/cache/*
-
-                        # =========================
-            # PREPARE DEPLOY PACKAGE
-            # =========================
-
-            - name: Prepare deploy package
-              run: |
-                  rm -rf deploy
-                  mkdir -p deploy
-
-                  rsync -a bin/ deploy/bin/
-                  rsync -a config/ deploy/config/
-                  rsync -a migrations/ deploy/migrations/
-                  rsync -a public/ deploy/public/
-                  rsync -a src/ deploy/src/
-                  rsync -a templates/ deploy/templates/
-                  rsync -a translations/ deploy/translations/
-                  rsync -a vendor/ deploy/vendor/
-
-                  mkdir -p deploy/var/cache
-                  mkdir -p deploy/var/log
-
-                  cp composer.json deploy/
-                  cp composer.lock deploy/
-                  cp symfony.lock deploy/
-
-                  if [ -f index.php ]; then
-                    cp index.php deploy/
-                  fi
-
-                  echo "===== DEPLOY ====="
-                  du -sh deploy
-                  echo "Files:"
-                  find deploy -type f | wc -l
-                  echo "Vendor:"
-                  find deploy/vendor -type f | wc -l
-                  echo "=================="
-
-            # =========================
-            # DEPLOY
-            # =========================
-
-            -   name: Deploy via SFTP
-                uses: wangyucode/sftp-upload-action@v3
-                with:
-                    host: ssh.cluster129.hosting.ovh.net
-                    port: 22
-
-                    username: ${{ secrets.OVH_USER }}
-                    password: ${{ secrets.OVH_PASSWORD }}
-
-                    localDir: deploy
-                    remoteDir: /home/sksystz/sk-systems
-
-                    concurrency: 1
-
-                    forceUpload: true
-                    removeExtraFilesOnServer: false
-
-                    exclude: |
-                        .git/**
-                        .github/**
-                        node_modules/**
-                        tests/**
-                        var/cache/**
-                        var/log/**
-                        .DS_Store
-                        Thumbs.db
-
-            # =========================
-            # CLEAR PRODUCTION CACHE
-            # =========================
-
-            -   name: Clear production cache
-                run: |
-                    RESPONSE=$(curl -L -s -w "\n%{http_code}" "https://sksystems.fr/_deploy.php?token=${{ secrets.DEPLOY_TOKEN }}")
-
-                    HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-                    BODY=$(echo "$RESPONSE" | sed '$d')
-
-                    echo "HTTP Status: $HTTP_CODE"
-                    echo "Response Body:"
-                    echo "$BODY"
-
-                    if [ "$HTTP_CODE" != "200" ]; then
-                      exit 1
-                    fi
-
-
-
+                  curl -fsSL "https://sksystems.fr/_deploy.php?token=${{ secrets.DEPLOY_TOKEN }}"
